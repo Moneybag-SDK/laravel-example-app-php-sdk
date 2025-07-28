@@ -129,8 +129,8 @@ The application uses the Moneybag PHP SDK (v1.0.0-beta.1) to process payments. T
 - Support for BDT currency
 
 Key implementation details:
-- Only requires `merchant_api_key` for staging environment
-- Uses the staging API URL: `https://staging.api.moneybag.com.bd/api/v2`
+- Only requires `merchant_api_key` for sandbox environment
+- Uses the sandbox API URL: `https://sandbox.api.moneybag.com.bd/api/v2`
 - Implements proper payment verification on success callback
 
 ## Application URLs
