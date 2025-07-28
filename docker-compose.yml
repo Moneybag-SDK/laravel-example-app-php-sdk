@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: laravel-moneybag-app
+    container_name: laravel-moneybag-app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - moneybag-network
+
+  webserver:
+    image: nginx:alpine
+    container_name: laravel-moneybag-webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8090:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - moneybag-network
+    depends_on:
+      - app
+
+networks:
+  moneybag-network:
+    driver: bridge
