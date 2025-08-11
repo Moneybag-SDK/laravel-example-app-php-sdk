@@ -52,8 +52,14 @@ RUN mkdir -p storage/framework/cache/data \
 # Switch to www-data user for composer install
 USER www-data
 
-# Install dependencies as www-data user
-RUN composer install --no-interaction --optimize-autoloader --no-dev
+# Install dependencies as www-data user (including dev dependencies for now)
+RUN composer install --no-interaction --optimize-autoloader --no-scripts || \
+    (echo "Composer install failed, retrying with verbose output..." && \
+     composer install --no-interaction --optimize-autoloader --no-scripts -vvv)
+
+# Verify vendor directory exists
+RUN test -d /var/www/vendor || (echo "ERROR: Vendor directory not created!" && exit 1)
+RUN test -f /var/www/vendor/autoload.php || (echo "ERROR: Autoload file not created!" && exit 1)
 
 # Generate key if .env exists
 RUN if [ -f .env ]; then php artisan key:generate; fi

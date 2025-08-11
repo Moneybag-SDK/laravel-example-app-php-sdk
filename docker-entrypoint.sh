@@ -5,6 +5,17 @@ if [ ! -f .env ]; then
     cp .env.docker .env
 fi
 
+# Check if vendor directory exists, if not run composer install
+if [ ! -d /var/www/vendor ] || [ ! -f /var/www/vendor/autoload.php ]; then
+    echo "Vendor directory missing, running composer install..."
+    cd /var/www
+    su www-data -c "composer install --no-interaction --optimize-autoloader"
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Composer install failed!"
+        exit 1
+    fi
+fi
+
 # Wait for dependencies
 sleep 5
 
