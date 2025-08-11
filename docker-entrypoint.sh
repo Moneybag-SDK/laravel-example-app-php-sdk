@@ -5,11 +5,21 @@ if [ ! -f .env ]; then
     cp .env.docker .env
 fi
 
+# Fix git safe directory issue
+git config --global --add safe.directory /var/www
+
 # Check if vendor directory exists, if not run composer install
 if [ ! -d /var/www/vendor ] || [ ! -f /var/www/vendor/autoload.php ]; then
     echo "Vendor directory missing, running composer install..."
     cd /var/www
-    su www-data -c "composer install --no-interaction --optimize-autoloader"
+    
+    # Create vendor directory with proper permissions
+    mkdir -p /var/www/vendor
+    chown -R www-data:www-data /var/www/vendor
+    chmod -R 775 /var/www/vendor
+    
+    # Run composer install as www-data
+    su www-data -c "git config --global --add safe.directory /var/www && composer install --no-interaction --optimize-autoloader"
     if [ $? -ne 0 ]; then
         echo "ERROR: Composer install failed!"
         exit 1
